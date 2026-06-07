@@ -176,7 +176,7 @@ curl -X POST http://localhost:8081/api/v1/rules \
 ### On-call schedules (admin only)
 
 ```bash
-# Create
+# Create — returns error if times overlap an existing schedule for the same service
 curl -X POST http://localhost:8081/api/v1/admin/oncall/schedules \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
@@ -188,24 +188,53 @@ curl -X POST http://localhost:8081/api/v1/admin/oncall/schedules \
   }'
 ```
 
+### API keys (admin only)
+
+```bash
+# Create — raw key is shown once, store it securely
+curl -X POST http://localhost:8081/api/v1/admin/api-keys \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"service_id":"<uuid>","name":"payment-service-prod"}'
+
+# List
+curl http://localhost:8081/api/v1/admin/api-keys \
+  -H "Authorization: Bearer <token>"
+
+# Revoke
+curl -X DELETE http://localhost:8081/api/v1/admin/api-keys/<id> \
+  -H "Authorization: Bearer <token>"
+```
+
+### Change password (any authenticated user)
+
+```bash
+curl -X PUT http://localhost:8081/api/v1/me/password \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"current_password":"old123","new_password":"new456"}'
+```
+
 ## RBAC
 
 | Role | Access |
 |------|--------|
-| ADMIN | Everything: create services, manage developers, manage on-call schedules |
-| DEVELOPER | Rules CRUD, alerts (ack/resolve), dashboard, logs search, service read/update |
+| ADMIN | Everything: create services, manage developers, on-call schedules, API keys |
+| DEVELOPER | Rules CRUD, alerts (ack/resolve), dashboard, logs search, service read/update, own password |
 
 ## Frontend pages
 
 | Page | Path | Role |
 |------|------|------|
 | Dashboard | `/dashboard` | All |
-| Alerts | `/alerts` | All |
+| Alerts | `/alerts` | All — paginated (50/page) |
 | Rules | `/rules` | All |
 | Services | `/services` | All (create: admin only) |
-| Logs | `/logs` | All |
+| Logs | `/logs` | All — load-more pagination |
 | Users | `/users` | Admin only |
 | On-Call | `/oncall` | Admin only |
+| API Keys | `/api-keys` | Admin only |
+| Profile | `/profile` | All — change own password |
 
 ## Alert rule query JSON
 
@@ -227,10 +256,34 @@ GET /health
 
 Returns status of PostgreSQL, Redis, and Kafka.
 
+## OpenSearch log retention
+
+A 30-day ISM retention policy is included. Apply it once after OpenSearch is running:
+
+```bash
+curl -X PUT http://localhost:9200/_plugins/_ism/policies/logs-retention \
+  -H "Content-Type: application/json" \
+  -d @opensearch/ism-policy.json
+```
+
 ## Deployment
 
-See [PROGRESS.md](PROGRESS.md) for full architecture decisions and deployment guidance.
+Production files are included in the repo:
 
-**Short version:**
-- **Development:** `docker compose up -d` for infra, `go run .` for backend, `npm run dev` for frontend
-- **Production:** Docker Compose with nginx reverse-proxy (routes `/api/*` to Go, serves `frontend/dist` as static files) — or embed the built frontend into the Go binary with `//go:embed frontend/dist`
+| File | Purpose |
+|------|---------|
+| `Dockerfile` | Multi-stage Go build |
+| `Dockerfile.frontend` | Node build → nginx static serving |
+| `nginx.conf` | Proxies `/api/*` to backend, SPA fallback for React |
+| `docker-compose.prod.yml` | All 7 services with healthchecks and named volumes |
+
+```bash
+# 1. Copy and fill in your credentials
+cp config/config.example.yaml config/config.yaml
+
+# 2. Build and start everything
+docker compose -f docker-compose.prod.yml up -d --build
+```
+
+- **Development:** `docker compose up -d` for infra · `go run .` for backend · `npm run dev` for frontend
+- **Production:** `docker-compose.prod.yml` — nginx on port 80 routes `/api` to the Go container and serves the built React app as static files
