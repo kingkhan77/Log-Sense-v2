@@ -8,28 +8,28 @@ Multi-tenant observability and incident management platform.
 
 ```
                         ┌─────────────────────────────────────────┐
-                        │              React Frontend              │
-                        │  (Vite dev server or nginx static build) │
+                        │              React Frontend             │
+                        │  (Vite dev server or nginx static build)│
                         └────────────────┬────────────────────────┘
                                          │ /api/v1/*
                         ┌────────────────▼────────────────────────┐
-                        │           Go / Gin HTTP Server           │
-                        │  JWT auth · API-key auth · RBAC          │
+                        │           Go / Gin HTTP Server          │
+                        │  JWT auth · API-key auth · RBAC         │
                         └──┬──────────┬──────────┬────────────────┘
                            │          │          │
-              ┌────────────▼─┐  ┌─────▼────┐  ┌─▼───────────┐
+              ┌────────────▼─┐  ┌─────▼────┐  ┌──▼───────────┐
               │  PostgreSQL  │  │  Redis   │  │    Kafka     │
               │  (main store)│  │ (dedup)  │  │ logs, alerts │
-              └──────────────┘  └──────────┘  └──┬───────────┘
+              └──────────────┘  └──────────┘  └───┬──────────┘
                                                   │
                               ┌───────────────────┼──────────────────┐
                               │                   │                  │
-                    ┌─────────▼──────┐  ┌─────────▼────────┐        │
-                    │  LogConsumer   │  │ NotifyConsumer    │        │
-                    │  → OpenSearch  │  │ → SMTP (on-call)  │        │
-                    └────────────────┘  └──────────────────┘        │
+                    ┌─────────▼──────┐  ┌─────────▼────────┐         │
+                    │  LogConsumer   │  │ NotifyConsumer   │         │
+                    │  → OpenSearch  │  │ → SMTP (on-call) │         │
+                    └────────────────┘  └──────────────────┘         │
                                                                      │
-                    ┌────────────────────────────────────────────────▼┐
+                    ┌────────────────────────────────────────────────▼─┐
                     │  RuleEngine (background, every 60 s)             │
                     │  OpenSearch count → alert → Kafka alerts topic   │
                     └──────────────────────────────────────────────────┘
