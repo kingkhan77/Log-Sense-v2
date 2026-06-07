@@ -1,0 +1,38 @@
+# Go build output
+*.exe
+*.test
+/bin/
+*.out
+
+# Config with credentials — commit config.example.yaml as a template instead
+config/config.yaml
+
+# Developer context / AI agent handoff doc — local only
+PROGRESS.md
+
+# Frontend dependencies and builds
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/coverage/
+frontend/.cache/
+frontend/.vite/
+frontend/.DS_Store
+frontend/.env*
+
+# General
+node_modules/
+dist/
+build/
+coverage/
+*.log
+*.pid
+tmp/
+*.swp
+*.swo
+.DS_Store
+.env*
+
+# IDE
+.vscode/
+.idea/

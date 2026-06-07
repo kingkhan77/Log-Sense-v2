@@ -1,0 +1,8 @@
+CREATE TABLE tenants (
+    id UUID PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
+    api_key VARCHAR(255) UNIQUE NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL
+);

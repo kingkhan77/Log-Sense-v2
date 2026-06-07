@@ -1,0 +1,62 @@
+app:
+  name: log-sense
+  env: development
+  port: 8081
+
+database:
+  host: localhost
+  port: 5433
+  user: postgres
+  password: your-db-password
+  name: observability
+  sslmode: disable
+  max_open_conns: 25
+  max_idle_conns: 5
+
+jwt:
+  secret: change-me-to-a-long-random-string
+  access_token_expiry_hours: 24
+
+redis:
+  host: localhost
+  port: 6379
+  password: ""
+  db: 0
+
+kafka:
+  brokers:
+    - localhost:9092
+  topics:
+    logs: logs
+    alerts: alerts
+  consumer_groups:
+    logs: log-processors
+    alerts: alert-processors
+
+opensearch:
+  host: localhost
+  port: 9200
+  username: ""
+  password: ""
+
+# Email alerts are sent to on-call developers when an alert fires.
+# For Gmail: create an App Password at https://myaccount.google.com/apppasswords
+smtp:
+  host: smtp.gmail.com
+  port: 587
+  username: you@gmail.com
+  password: your-app-password
+  from_email: you@gmail.com
+
+alerting:
+  evaluation_interval_seconds: 60
+  default_window_minutes: 5
+  worker_count: 10
+
+logging:
+  level: info
+  format: json
+
+cors:
+  allowed_origins:
+    - http://localhost:5173
