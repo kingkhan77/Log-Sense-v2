@@ -19,7 +19,7 @@ func NewPostgres(cfg *Config) *gorm.DB {
 		cfg.Database.Name,
 		cfg.Database.SSLMode,
 	)
-	fmt.Println("DSN:", dsn)
+
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
