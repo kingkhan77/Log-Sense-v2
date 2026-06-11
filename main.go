@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/kingkhan77/log-sense/internal/consumer"
 	"github.com/kingkhan77/log-sense/internal/controller"
 	"github.com/kingkhan77/log-sense/internal/engine"
@@ -17,7 +18,6 @@ import (
 	"github.com/kingkhan77/log-sense/internal/repository"
 	"github.com/kingkhan77/log-sense/internal/service"
 	"github.com/kingkhan77/log-sense/pkg"
-	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -47,7 +47,7 @@ func main() {
 
 	authService := service.NewAuthService(userRepo, cfg)
 	userService := service.NewUserService(userRepo)
-	serviceService := service.NewServiceService(serviceRepo)
+	tenantService := service.NewTenantService(serviceRepo)
 	ruleService := service.NewRuleService(ruleRepo)
 	alertService := service.NewAlertService(alertRepo, redisClient)
 	oncallService := service.NewOnCallService(oncallRepo, serviceRepo)
@@ -59,7 +59,7 @@ func main() {
 
 	authController := controller.NewAuthController(authService)
 	userController := controller.NewUserController(userService)
-	serviceController := controller.NewServiceController(serviceService)
+	serviceController := controller.NewServiceController(tenantService)
 	ruleController := controller.NewRuleController(ruleService)
 	alertController := controller.NewAlertController(alertService)
 	oncallController := controller.NewOnCallController(oncallService)
